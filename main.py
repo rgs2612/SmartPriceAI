@@ -1,1 +1,1 @@
-# main.py - placeholder for smart_pricing_ai_real module
+# Orchestration script for scraping, training, and pricing

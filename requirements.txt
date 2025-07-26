@@ -1,29 +1,5 @@
-# requirements.txt - placeholder for smart_pricing_ai_real module
-# Core libraries
-pandas
-numpy
-scikit-learn
-joblib
-
-# Web scraping
-requests
-beautifulsoup4
-lxml
-
-# Scheduling
-schedule
-
-# Dashboard (Frontend)
 streamlit
-plotly
-
-# Backend API (optional, only if you're using FastAPI)
-fastapi
-uvicorn
-
-# Data visualization (extra support for rich visuals)
-matplotlib
-seaborn
-
-# File utilities
-python-dotenv
+scikit-learn
+pandas
+joblib
+requests
