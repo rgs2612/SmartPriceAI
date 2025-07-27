@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import os
+from config import INVENTORY_PATH
 
 def clean_price(price_str):
     """
@@ -47,3 +49,25 @@ def merge_data(competitor_df, internal_df):
     merged["price_range"] = merged["max_price"] - merged["min_price"]
     
     return merged
+
+def load_inventory_demand(product_name=None):
+    """
+    Load inventory and demand data from CSV.
+    If product_name is provided, return data for that product only.
+    """
+    try:
+        df = pd.read_csv(INVENTORY_PATH)
+
+        if product_name:
+            # Get row for specific product
+            row = df[df['product_id'] == product_name].iloc[0]
+            inventory = int(row["inventory_level"])
+            demand = float(row["demand_score"])
+            return inventory, demand
+
+        # If no product name, return whole dataframe
+        return df
+    except Exception as e:
+        print(f"Error loading inventory and demand data: {e}")
+        return None, None
+
