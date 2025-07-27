@@ -1,5 +1,20 @@
-streamlit
-scikit-learn
+# Core
 pandas
+numpy
+scikit-learn
+
+# Streamlit dashboard
+streamlit
+
+# Visualization (optional)
+matplotlib
+seaborn
+
+# For saving/loading model
 joblib
-requests
+
+# Environment/config handling
+python-dotenv
+
+# Optional: development tools
+ipykernel
