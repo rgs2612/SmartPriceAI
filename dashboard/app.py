@@ -1,15 +1,39 @@
+import sys
 import streamlit as st
 import pandas as pd
 import altair as alt
+import os
 
-from scraper.google_shopping import fetch_competitor_prices
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from config import COMPETITOR_PRICE_PATH
 from model.predictor import predict_optimal_price
 from model.utils import load_inventory_demand
 
+# ✅ Replace actual scraper with mock CSV reader
+def fetch_competitor_prices(product_name):
+    df = pd.read_csv(COMPETITOR_PRICE_PATH)
+    filtered = df[df['product_name'].str.contains(product_name, case=False, na=False)]
+
+    if filtered.empty:
+        return []
+
+    prices = []
+    for _, row in filtered.iterrows():
+        for i in range(1, 4):  # competitor_1_price to competitor_3_price
+            price = row.get(f'competitor_{i}_price')
+            if pd.notna(price):
+                prices.append({
+                    "source": f"Competitor {i}",
+                    "price": price
+                })
+    return prices
+
+# 🎯 Streamlit page settings
 st.set_page_config(page_title="Smart AI Pricing", layout="wide")
 st.title("🧠 Smart AI Pricing Dashboard")
 
-# Input
+# 🔍 Product input
 product = st.text_input("🔍 Enter a product name (e.g., OnePlus Nord 5G):")
 
 if product:
@@ -30,7 +54,7 @@ if product:
                     demand=demand
                 )
 
-                # Prepare DataFrame
+                # Step 4: Format data
                 df = pd.DataFrame(competitors)
                 df["source"] = df["source"].str.title()
                 df["price"] = df["price"].astype(float)
@@ -39,16 +63,17 @@ if product:
                 df_opt = pd.DataFrame([{"source": "Optimal", "price": optimal_price}])
                 df_chart = pd.concat([df, df_opt], ignore_index=True)
 
-                # Display data
+                # 🧾 Table
                 st.subheader("📊 Competitor Prices")
                 st.dataframe(df)
 
+                # ✅ Optimal price
                 st.subheader("📈 Optimal Price Recommendation")
                 st.metric(label="💡 Optimal Price", value=f"₹{optimal_price:.2f}")
                 st.markdown(f"- **Inventory Level**: `{inventory}`")
                 st.markdown(f"- **Demand Score**: `{demand}`")
 
-                # Chart
+                # 📊 Bar chart
                 chart = alt.Chart(df_chart).mark_bar().encode(
                     x=alt.X('source:N', title='Source'),
                     y=alt.Y('price:Q', title='Price (₹)'),
@@ -61,7 +86,7 @@ if product:
 
                 st.altair_chart(chart)
 
-                # CSV download
+                # ⬇️ Download option
                 st.download_button(
                     "⬇️ Download Optimized Prices CSV",
                     data=df_chart.to_csv(index=False),
@@ -72,6 +97,6 @@ if product:
         except Exception as e:
             st.error(f"An error occurred: {e}")
 
-# Sidebar
+# 🛠️ Sidebar info
 st.sidebar.markdown("### ⚙️ Controls")
 st.sidebar.info("Enter a product name to fetch competitor prices and receive an AI-powered optimal pricing recommendation.")
